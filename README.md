@@ -129,7 +129,7 @@ For packages, see environment.yaml.
 
    Clone the repo
    ```sh
-   git clone https://github.com/IP-Prompter/IP-Prompter-code.git
+   git clone https://github.com/zyxElsa/IP-Prompter.git
    ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
