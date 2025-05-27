@@ -87,7 +87,7 @@
 
 The stories and characters that captivate us as we grow up shape unique fantasy worlds, with images serving as the primary medium for visually experiencing these realms. Personalizing generative models through fine-tuning with theme-specific data has become a prevalent approach in text-to-image generation. However, unlike object customization, which focuses on learning specific objects, theme-specific generation encompasses diverse elements such as characters, scenes, and objects. Such diversity also introduces a key challenge: how to adaptively generate multi-character, multi-concept, and continuous theme-specific images (TSI). Moreover, fine-tuning approaches often come with significant computational overhead, time costs, and risks of overfitting. This paper explores a fundamental question: Can image generation models directly leverage images as contextual input, similarly to how large language models use text as context? To address this, we present IP-Prompter, a novel training-free TSI method for generation. IP-Prompter introduces visual prompting, a mechanism that integrates reference images into generative models, allowing users to seamlessly specify the target theme without requiring additional training. To further enhance this process, we propose a Dynamic Visual Prompting (DVP) mechanism, which iteratively optimizes visual prompts to improve the accuracy and quality of generated images. Our approach enables diverse applications, including consistent story generation, character design, realistic character generation, and style- guided image generation. Comparative evaluations against state-of-the-art personalization methods demonstrate that IP-Prompter achieves significantly better results and excels in maintaining character identity preserving, style consistency and text alignment, offering a robust and flexible solution for theme-specific image generation.
 
-For details see the [paper](https://arxiv.org/abs/2501.15641) 
+For details see the [paper](https://arxiv.org/abs/2501.15641) and [Project Page](https://ip-prompter.github.io/).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -113,45 +113,50 @@ This section should list any major frameworks/libraries used to bootstrap your p
 <!-- GETTING STARTED -->
 ## Getting Started
 
-### Prerequisites
-
-For packages, see environment.yaml.
-
-  ```sh
-  conda env create ip-prompter
-  pip install -r requirements.txt
-  conda activate ip-prompter
-  ```
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
 ### Installation
 
    Clone the repo
    ```sh
    git clone https://github.com/zyxElsa/IP-Prompter.git
    ```
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+### Prerequisites
+
+For packages, see requirements.txt
+
+  ```sh
+  conda create -n ip-prompter
+  conda activate ip-prompter
+  pip install -r requirements.txt
+  ```
+
+We use the [FLUX.1-Fill-dev](https://huggingface.co/black-forest-labs/FLUX.1-Fill-dev).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### Citation
-   
+
+### Inference
+
    ```sh
-
+   python inference.py --dataset {path to the reference images, e.g. 'images/tintin'}
    ```
-   
+
+  Optional
+   ```sh
+   --width {output image width}
+   --height {output image height}
+   --output_dir {path to save output images}
+   --model {path to generative model e.g. 'downloads/models/black-forest-labs/FLUX.1-Fill-dev'}
+   --seed {set specific seed or -1 for random seeds}
+   --specific {image names for user specific images, use ',' to split}
+   ```
+
+  
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-<!-- 
-<!-- USAGE EXAMPLES -->
-<!-- ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-<p align="right">(<a href="#top">back to top</a>)</p> -->
 
 
 
