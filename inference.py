@@ -5,10 +5,11 @@ from PIL import Image
 import os
 import random
 from itertools import permutations
+import argparse
 
 from search_images import search_images, evaluate_images
 from prompts_list import prompt_content_list, elements_list
-
+    
 def generate_permutations(seq_len):
     """
     Generate all permutations of indices for a given length.
@@ -45,36 +46,42 @@ def paste_specific(canvas, image, index, width, height):
     canvas.paste(image, box=positions[index])
     return canvas
 
-# Image size configuration
-width, height = 512, 512
 
-# Load reference style images
-style_images = []
-data_dir = "./images/tintin"
-for image_name in os.listdir(data_dir)[:8]:
-    image = load_image(os.path.join(data_dir, image_name))
-    style_images.append(center_crop(image, width, height))
+parser = argparse.ArgumentParser()
+
+parser.add_argument('--width', type=int, default=256, help='output image width')
+parser.add_argument('--height', type=int, default=256, help='output image height')
+parser.add_argument('--dataset', type=str, default='images/tintin', help='path to the images')
+parser.add_argument('--output_dir', type=str, default='output', help='path to output images')
+parser.add_argument('--model', type=str, default='black-forest-labs/FLUX.1-Fill-dev', help='path to generative model')
+parser.add_argument('--seed', type=int, default=-1, help='-1 for random seeds')
+parser.add_argument('--specific', type=str, default=None, help="image names for user specific images, use ',' to split ")
+
+args = parser.parse_args()
 
 # Load pipeline
 pipe = FluxFillPipeline.from_pretrained(
-    "black-forest-labs/FLUX.1-Fill-dev",
+    args.model,
     torch_dtype=torch.bfloat16
 ).to("cuda")
 
 # Setup
-seed = 0
-output_dir = "output"
+width, height = args.width, args.height
+data_dir = args.dataset
+seed = args.seed
+output_dir = args.output_dir
 os.makedirs(output_dir, exist_ok=True)
 
-user_specific_image_names = []
-is_user_specific = len(user_specific_image_names) > 0
-user_specific_images = []
+is_user_specific = (args.specific != None)
 if is_user_specific:
-    for name in user_specific_image_names:
-        image_path = os.path.join(data_dir, name)
-        user_specific_images.append(Image.open(image_path).convert("RGB"))
+    user_specific_image_names = args.specific.split(',')
+    user_specific_images = []
+    if is_user_specific:
+        for name in user_specific_image_names:
+            image_path = os.path.join(data_dir, name)
+            user_specific_images.append(Image.open(image_path).convert("RGB"))
 
-standard_prompt = 'A diptych with images sharing the same art style. high-quality. '
+standard_prompt = 'A diptych with images sharing the same art style. high-quality.'
 all_permutations = generate_permutations(3)
 
 # Iterate over prompts and elements
@@ -121,7 +128,8 @@ for frame_index, (prompt_content, elements) in enumerate(zip(prompt_content_list
         mask.save('mask.jpg')
 
         prompt = standard_prompt + prompt_content
-        seed = random.randint(0, 1000)
+        if seed == -1:
+            seed = random.randint(0, 1000)
         result = pipe(
             prompt=prompt,
             image=concat_image,
@@ -140,7 +148,6 @@ for frame_index, (prompt_content, elements) in enumerate(zip(prompt_content_list
         candidates.append(output_path)
 
     results, output_grid, top_matches = evaluate_images(prompt_content, reference_images, candidates, width, height)
-    print(f"Top match for frame {frame_index}: {top_matches}")
 
     # Save result and grid
     base_name = f"{frame_index:02d}-{safe_name}-{seed}"
